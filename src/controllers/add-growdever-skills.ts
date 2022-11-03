@@ -1,14 +1,15 @@
 import { Request, Response } from "express";
 import { getGrowdeversSync, saveGrowdeversSync } from "../db/growdevers";
+import { GrowdeverRepository } from "../repositories/growdever";
 
 export class AddGrowdeverSkillsController {
-  addSkills(request: Request, response: Response) {
+  async addSkills(request: Request, response: Response) {
     const { id } = request.params;
     const { skills } = request.body;
 
-    const growdeversDB = getGrowdeversSync();
+    const repository = new GrowdeverRepository();
 
-    const growdever = growdeversDB.find((grow) => grow.id === id);
+    const growdever = await repository.getGrowdeverByUid(id);
 
     if (!growdever) {
       return response.status(404).json({ error: "Growdever não encontrado" });
@@ -16,7 +17,7 @@ export class AddGrowdeverSkillsController {
 
     try {
       growdever.updateSkills(skills);
-      saveGrowdeversSync(growdeversDB);
+      repository.updateGrowdever(growdever);
     } catch (error: any) {
       return response.status(400).json({ error: error.message });
     }

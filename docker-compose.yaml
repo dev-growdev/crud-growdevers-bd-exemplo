@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+
+  app:
+    image: node:16.11
+    # command: npm run dev
+    container_name: crud_growdevers
+    ports:
+      - 8080:8080
+      - 9229:9229
+    working_dir: /home/node/app
+    volumes:
+      - .:/home/node/app
+    networks:
+      - starter
+    tty: true
+
+  db:
+    image: postgres
+    restart: always
+    container_name: postgres-starter
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    environment:
+      POSTGRES_PASSWORD: growdev2022
+      POSTGRES_USER: growdev
+      POSTGRES_DB: starter
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - starter
+
+networks:
+  starter:
+    driver: bridge
+
+volumes:
+  postgres:

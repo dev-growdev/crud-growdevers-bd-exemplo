@@ -1,22 +1,23 @@
 import { Request, Response } from "express";
 import { getGrowdeversSync, saveGrowdeversSync } from "../db/growdevers";
+import { GrowdeverRepository } from "../repositories/growdever";
 
 export class DeleteSkillController {
-  deleteSkill(request: Request, response: Response) {
+  async deleteSkill(request: Request, response: Response) {
     const { id } = request.params;
     const { skill } = request.body;
 
-    const growdeversDB = getGrowdeversSync();
+    const repository = new GrowdeverRepository();
 
-    const growdever = growdeversDB.find((growdever) => growdever.id === id);
+    const growdever = await repository.getGrowdeverByUid(id);
 
     if (!growdever) {
-      return response.status(400).json({ error: "Growdever não encontrada" });
+      return response.status(404).json({ error: "Growdever não encontrado" });
     }
 
     try {
       growdever.deleteSkill(skill);
-      saveGrowdeversSync(growdeversDB);
+      repository.updateGrowdever(growdever);
     } catch (err: any) {
       return response.status(400).json({ error: err.message });
     }

@@ -11,4 +11,4 @@ appRoutes(app);
 
 console.log(process.env.PORT);
 
-app.listen(process.env.PORT || 3333, () => console.log("API RODANDO"));
+app.listen(process.env.PORT || 8080, () => console.log("API RODANDO"));

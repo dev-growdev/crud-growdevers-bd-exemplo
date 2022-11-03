@@ -1,23 +1,20 @@
 import { Request, Response } from "express";
 import { getGrowdeversSync, saveGrowdeversSync } from "../db/growdevers";
+import { GrowdeverRepository } from "../repositories/growdever";
 
 export class RemoveGrowdeverController {
-  remove(request: Request, response: Response) {
+  async remove(request: Request, response: Response) {
     const { id } = request.params;
 
-    const growdeversDB = getGrowdeversSync();
+    const repository = new GrowdeverRepository();
 
-    const indexGrowdever = growdeversDB.findIndex(
-      (growdever) => growdever.id === id
-    );
+    const growdever = await repository.getGrowdeverByUid(id);
 
-    if (indexGrowdever < 0) {
+    if (!growdever) {
       return response.status(404).json({ error: "Growdever não encontrado" });
     }
 
-    growdeversDB.splice(indexGrowdever, 1);
-
-    saveGrowdeversSync(growdeversDB);
+    await repository.deleteGrowdever(id);
 
     return response.status(200).json();
   }
