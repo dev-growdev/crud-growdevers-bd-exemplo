@@ -1,5 +1,5 @@
 import { Growdever } from "../models/growdever";
-import db from "../db/index";
+import db from "../db";
 
 export class GrowdeverRepository {
   async getAllGrowdevers(): Promise<Growdever[]> {
