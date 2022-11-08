@@ -7,9 +7,12 @@ const pool = new Pool({
 });
 
 export const getGrowdevers = async (): Promise<Growdever[]> => {
-  const data = await pool.query("SELECT * FROM growdevers");
+  const client = await pool.connect();
+  const result = await client.query("SELECT * FROM growdevers");
 
-  return data.rows.map((row) =>
+  client.release();
+
+  return result.rows.map((row) =>
     Growdever.create(
       row.id,
       row.name,
@@ -22,7 +25,9 @@ export const getGrowdevers = async (): Promise<Growdever[]> => {
 };
 
 export const addGrowdever = async (growdever: Growdever) => {
-  await pool.query(
+  const client = await pool.connect();
+
+  await client.query(
     "INSERT INTO growdevers(id, name, birth, cpf, status, skills) VALUES ($1, $2, $3, $4, $5, $6)",
     [
       growdever.id,
@@ -33,6 +38,8 @@ export const addGrowdever = async (growdever: Growdever) => {
       growdever.skills.join(),
     ]
   );
+
+  client.release();
 };
 
 // (async () => {

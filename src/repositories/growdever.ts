@@ -3,9 +3,9 @@ import db from "../db";
 
 export class GrowdeverRepository {
   async getAllGrowdevers(): Promise<Growdever[]> {
-    const data = await db.query("SELECT * FROM growdevers");
+    const result = await db.query("SELECT * FROM growdevers");
 
-    return data.rows.map((row) =>
+    return result.rows.map((row) =>
       Growdever.create(
         row.id,
         row.name,
@@ -32,17 +32,19 @@ export class GrowdeverRepository {
   }
 
   async getGrowdeverByUid(id: string): Promise<Growdever | undefined> {
-    const data = await db.query("SELECT * FROM growdevers WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM growdevers WHERE id = $1", [
+      id,
+    ]);
 
-    if (data.rowCount === 0) return undefined;
+    if (result.rowCount === 0) return undefined;
 
     return Growdever.create(
-      data.rows[0].id,
-      data.rows[0].name,
-      data.rows[0].cpf,
-      data.rows[0].birth,
-      data.rows[0].status,
-      data.rows[0].skills ? (data.rows[0].skills as string).split(",") : []
+      result.rows[0].id,
+      result.rows[0].name,
+      result.rows[0].cpf,
+      result.rows[0].birth,
+      result.rows[0].status,
+      result.rows[0].skills ? (result.rows[0].skills as string).split(",") : []
     );
   }
 
@@ -60,7 +62,7 @@ export class GrowdeverRepository {
   }
 
   async deleteGrowdever(id: string): Promise<boolean> {
-    const data = await db.query("DELETE FROM growdevers WHERE id = $1", [id]);
-    return data.rowCount !== 0;
+    const result = await db.query("DELETE FROM growdevers WHERE id = $1", [id]);
+    return result.rowCount !== 0;
   }
 }

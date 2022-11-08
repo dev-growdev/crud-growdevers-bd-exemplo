@@ -6,5 +6,10 @@ const pool = new Pool({
 });
 
 export default {
-  query: (sql: string, params?: any[]) => pool.query(sql, params),
+  query: async (sql: string, params?: any[]) => {
+    const client = await pool.connect();
+    const result = await pool.query(sql, params);
+    client.release();
+    return result;
+  },
 };
