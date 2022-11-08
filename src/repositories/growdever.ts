@@ -1,11 +1,12 @@
 import { Growdever } from "../models/growdever";
 import db from "../db";
+import { pgHelper } from "../database/pg-helper";
 
 export class GrowdeverRepository {
   async getAllGrowdevers(): Promise<Growdever[]> {
-    const result = await db.query("SELECT * FROM growdevers");
+    const result = await pgHelper.client.query("SELECT * FROM growdevers");
 
-    return result.rows.map((row) =>
+    return (result as Array<any>).map((row) =>
       Growdever.create(
         row.id,
         row.name,
