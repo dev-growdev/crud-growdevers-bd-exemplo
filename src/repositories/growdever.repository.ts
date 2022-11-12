@@ -1,83 +1,84 @@
 import { Growdever } from "../models/growdever";
-import { pgHelper } from "../database/pg-helper";
+import { GrowdeverEntity } from "../database/entities/growdever.entity";
 
+// Active Record
 export class GrowdeverRepository {
   async getAllGrowdevers(): Promise<Growdever[]> {
-    const result = await pgHelper.client.query("SELECT * FROM growdevers");
+    const growdeversEntities = await GrowdeverEntity.find();
 
-    return (result as Array<any>).map((row) =>
+    return growdeversEntities.map((growdeverEntity) =>
       Growdever.create(
-        row.id,
-        row.name,
-        row.cpf,
-        row.birth,
-        row.status,
-        row.skills ? (row.skills as string).split(",") : []
+        growdeverEntity.id,
+        growdeverEntity.name,
+        growdeverEntity.cpf,
+        growdeverEntity.birth,
+        growdeverEntity.status,
+        growdeverEntity.skills ? growdeverEntity.skills.split(",") : []
       )
     );
   }
 
   async createGrowdever(growdever: Growdever): Promise<void> {
-    await pgHelper.client.query(
-      "INSERT INTO growdevers(id, name, birth, cpf, status, skills) VALUES ($1, $2, $3, $4, $5, $6)",
-      [
-        growdever.id,
-        growdever.name,
-        growdever.birth,
-        growdever.cpf,
-        growdever.status,
-        growdever.skills.join(),
-      ]
-    );
+    const growdeverEntity = GrowdeverEntity.create({
+      id: growdever.id,
+      name: growdever.name,
+      birth: growdever.birth,
+      cpf: growdever.cpf,
+      status: growdever.status,
+      skills: growdever.skills.join(),
+    });
+
+    await growdeverEntity.save();
   }
 
   async getGrowdeverByUid(id: string): Promise<Growdever | undefined> {
-    const result: Array<any> = await pgHelper.client.query(
-      "SELECT * FROM growdevers WHERE id = $1",
-      [id]
-    );
+    // const growdeverEntity = await GrowdeverEntity.findBy({ id });
+    const growdeverEntity = await GrowdeverEntity.findOne({ where: { id } });
 
-    if (result.length === 0) return undefined;
+    if (!growdeverEntity) return undefined;
 
     return Growdever.create(
-      result[0].id,
-      result[0].name,
-      result[0].cpf,
-      result[0].birth,
-      result[0].status,
-      result[0].skills ? (result[0].skills as string).split(",") : []
+      growdeverEntity.id,
+      growdeverEntity.name,
+      growdeverEntity.cpf,
+      growdeverEntity.birth,
+      growdeverEntity.status,
+      growdeverEntity.skills
+        ? (growdeverEntity.skills as string).split(",")
+        : []
     );
   }
 
   async existsGrowdeverByCpf(cpf: string): Promise<boolean> {
-    const result: Array<any> = await pgHelper.client.query(
-      "SELECT * FROM growdevers WHERE cpf = $1",
-      [cpf]
-    );
-
-    return result.length > 0;
+    const growdeverEntity = await GrowdeverEntity.findOneBy({ cpf });
+    return !!growdeverEntity;
   }
 
   async updateGrowdever(growdever: Growdever): Promise<void> {
-    await pgHelper.client.query(
-      "UPDATE growdevers SET name = $1, birth = $2, status = $3, skills = $4 WHERE id = $5",
-      [
-        growdever.name,
-        growdever.birth,
-        growdever.status,
-        growdever.skills.join(),
-        growdever.id,
-      ]
-    );
+    const growdeveryEntity = await GrowdeverEntity.findOneBy({
+      id: growdever.id,
+    });
+
+    if (!growdeveryEntity) throw new Error("Growdever não encontrado");
+
+    growdeveryEntity.name = growdever.name;
+    growdeveryEntity.birth = growdever.birth;
+    growdeveryEntity.cpf = growdever.cpf;
+    growdeveryEntity.status = growdever.status;
+    growdeveryEntity.skills = growdever.skills.join();
+
+    await growdeveryEntity.save();
   }
 
   async deleteGrowdever(id: string): Promise<boolean> {
-    const [result, rowCount]: Array<any> = await pgHelper.client.query(
-      "DELETE FROM growdevers WHERE id = $1",
-      [id]
-    );
-    console.log(result);
-    console.log(rowCount);
-    return rowCount !== 0;
+    const growdeverEntity = await GrowdeverEntity.findOneBy({
+      id,
+    });
+
+    if (!growdeverEntity) throw new Error("Growdever não existe");
+
+    await growdeverEntity.remove();
+
+    return true;
   }
 }
