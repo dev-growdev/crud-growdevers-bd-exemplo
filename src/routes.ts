@@ -1,9 +1,9 @@
 import { Express } from "express";
 import { GrowdeverSkillController } from "./controllers/growdever-skill.controller";
 import { GrowdeverController } from "./controllers/growdever.controller";
-import { ClearFormattingMiddleware } from "./middlewares/clear-formatting";
-import { ValidateCpfMiddleware } from "./middlewares/validate-cpf";
-import { VerifyCpfExistsMiddleware } from "./middlewares/verify-cpf-exists";
+import { ClearFormattingMiddleware } from "./middlewares/clear-formatting.middleware";
+import { ValidateCpfMiddleware } from "./middlewares/validate-cpf.middleware";
+import { VerifyCpfExistsMiddleware } from "./middlewares/verify-cpf-exists.middleware";
 
 export default (app: Express) => {
   app.get("/", (request, response) => response.send("ESTÁ FUNCIONANDO"));

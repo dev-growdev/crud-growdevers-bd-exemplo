@@ -49,6 +49,15 @@ export class GrowdeverRepository {
     );
   }
 
+  async existsGrowdeverByCpf(cpf: string): Promise<boolean> {
+    const result: Array<any> = await pgHelper.client.query(
+      "SELECT * FROM growdevers WHERE cpf = $1",
+      [cpf]
+    );
+
+    return result.length > 0;
+  }
+
   async updateGrowdever(growdever: Growdever): Promise<void> {
     await pgHelper.client.query(
       "UPDATE growdevers SET name = $1, birth = $2, status = $3, skills = $4 WHERE id = $5",
