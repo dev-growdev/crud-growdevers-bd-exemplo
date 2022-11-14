@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   BeforeInsert,
   BeforeUpdate,
   Column,
@@ -7,25 +6,25 @@ import {
   PrimaryColumn,
 } from "typeorm";
 
-@Entity({ name: "addresses" })
-export class AddressEntity extends BaseEntity {
+@Entity({ name: "" })
+export class UserEntity {
   @PrimaryColumn()
   id!: string;
 
-  @Column()
-  street!: string;
+  @Column({ name: "full_name" })
+  fullName!: string;
 
   @Column()
-  city!: string;
+  email!: string;
 
   @Column()
-  uf!: string;
-
-  @Column({ name: "updated_at" })
-  updatedAt!: Date;
+  password!: string;
 
   @Column({ name: "created_at" })
   createdAt!: Date;
+
+  @Column({ name: "updated_at" })
+  updatedAt!: Date;
 
   @BeforeInsert()
   beforeInsert() {
