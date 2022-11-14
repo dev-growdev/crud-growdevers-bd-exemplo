@@ -1,4 +1,5 @@
 import { Response, Request } from "express";
+import { Address } from "../models/address";
 import { Growdever } from "../models/growdever";
 import { GrowdeverRepository } from "../repositories/growdever.repository";
 
@@ -48,13 +49,17 @@ export class GrowdeverController {
   }
 
   async create(request: Request, response: Response) {
-    const { name, cpf, birth, skills } = request.body;
+    const { name, cpf, birth, skills, address } = request.body;
 
     if (skills && !(skills instanceof Array)) {
       return response.status(400).json({ error: "Skills no formado inválido" });
     }
 
     const growdever = new Growdever(name, new Date(birth), cpf, skills);
+
+    if (address) {
+      growdever.addAddress(address);
+    }
 
     const repository = new GrowdeverRepository();
 
@@ -82,7 +87,7 @@ export class GrowdeverController {
   async update(request: Request, response: Response) {
     const { id } = request.params;
 
-    const { name, birth, status } = request.body;
+    const { name, birth, status, address } = request.body;
 
     const repository = new GrowdeverRepository();
 
@@ -93,7 +98,7 @@ export class GrowdeverController {
     }
 
     try {
-      growdever.updateInformation(name, new Date(birth), status);
+      growdever.updateInformation(name, new Date(birth), status, address);
       await repository.updateGrowdever(growdever);
     } catch (err: any) {
       return response.status(400).json({ error: err.message });

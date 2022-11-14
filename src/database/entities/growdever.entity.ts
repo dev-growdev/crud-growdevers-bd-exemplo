@@ -1,4 +1,14 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from "typeorm";
+import { AddressEntity } from "./address.entity";
+import { AssessmentEntity } from "./assessment.entity";
 
 @Entity({ name: "growdevers" })
 export class GrowdeverEntity extends BaseEntity {
@@ -19,4 +29,14 @@ export class GrowdeverEntity extends BaseEntity {
 
   @Column()
   skills!: string;
+
+  @Column({ name: "address_id", nullable: true })
+  addressId!: string | null;
+
+  @OneToOne(() => AddressEntity) //{ eager: true }
+  @JoinColumn({ name: "address_id", referencedColumnName: "id" })
+  address?: AddressEntity;
+
+  @OneToMany(() => AssessmentEntity, (e) => e.growdever) //{ eager: true }
+  assessments?: AssessmentEntity[];
 }

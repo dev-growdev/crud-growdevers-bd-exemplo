@@ -1,5 +1,13 @@
 import crypto from "crypto";
 import "../utils/extension-methods";
+import { Address } from "./address";
+import { Assessment } from "./assessment";
+
+interface AddressDTO {
+  street: string;
+  city: string;
+  uf: string;
+}
 
 export class Growdever {
   // caracteristicas (atributos)
@@ -40,6 +48,18 @@ export class Growdever {
     return [...this._skills];
   }
 
+  private _address?: Address;
+
+  get address(): Address | undefined {
+    return this._address;
+  }
+
+  _assessments: Assessment[];
+
+  get assessments(): Assessment[] {
+    return this._assessments;
+  }
+
   constructor(name: string, birth: Date, cpf: string, skills?: string[]) {
     this._id = crypto.randomUUID();
     this._name = name;
@@ -47,6 +67,7 @@ export class Growdever {
     this._cpf = cpf.clearSpecialCharacteres();
     this._status = "STUDYING";
     this._skills = skills ?? [];
+    this._assessments = [];
 
     // this._skills = skills !== undefined ? skills : [];
     // this._skills = skills ? skills : [];
@@ -67,33 +88,46 @@ export class Growdever {
     cpf: string,
     birth: Date,
     status: string,
-    skills: string[]
+    skills: string[],
+    assessments?: Assessment[],
+    address?: Address
   ): Growdever {
-    const growdever = new Growdever(name, birth, cpf, skills);
-    growdever._id = id;
-    growdever._status = status;
-    return growdever;
+    const model = new Growdever(name, birth, cpf, skills);
+    model._id = id;
+    model._status = status;
+
+    if (assessments) {
+      model._assessments = assessments;
+    }
+
+    if (address) {
+      model._address = address;
+    }
+
+    return model;
   }
 
   // comportamentos (métodos)
 
-  updateInformation(name: string, birth: Date, status: string) {
+  addAddress({ street, city, uf }: AddressDTO) {
+    if (!street || !city || !uf) {
+      throw new Error("Endereco inválido");
+    }
+
+    this._address = new Address(street, city, uf);
+  }
+
+  updateInformation(
+    name: string,
+    birth: Date,
+    status: string,
+    address: AddressDTO
+  ) {
     if (!name) throw new Error("Nome inválido");
 
-    if (!birth || isNaN(birth.getDate()))
+    if (!birth || isNaN(birth.getDate())) {
       throw new Error("Data de nascimento inválido");
-
-    // 'STUDYING', 'GRADUATED', 'CANCELED'
-
-    // if (
-    //   status !== "STUDYING" &&
-    //   status !== "GRADUATED" &&
-    //   status !== "CANCELED"
-    // ) {
-    //   throw new Error(
-    //     "Status inválido. Valores permitidos: STUDYING, GRADUATED ou CANCELED"
-    //   );
-    // }
+    }
 
     if (!["STUDYING", "GRADUATED", "CANCELED"].some((s) => s === status)) {
       throw new Error(
@@ -104,6 +138,16 @@ export class Growdever {
     this._name = name;
     this._birth = birth;
     this._status = status;
+
+    if (!this._address && address) {
+      this.addAddress(address);
+    }
+
+    if (this._address && !address) this._address = undefined;
+
+    if (this.address && address) {
+      this._address?.update(address.street, address.city, address.uf);
+    }
   }
 
   updateSkills(newSkills: string[]) {
@@ -122,6 +166,8 @@ export class Growdever {
       cpf: this._cpf,
       status: this._status,
       skills: this._skills,
+      address: this._address ? this._address.toJson() : undefined,
+      assessments: this._assessments.map((a) => a.toJson()),
     };
   }
 
