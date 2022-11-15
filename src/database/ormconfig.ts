@@ -10,6 +10,7 @@ const config: DataSourceOptions = {
   //   rejectUnauthorized: false,
   // },
   entities: ["src/database/entities/**/*"],
+  migrations: ["src/database/migrations/*.ts"],
 };
 
 export default config;
